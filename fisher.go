@@ -2,11 +2,10 @@ package stats
 
 import (
 	"math/rand"
-	"time"
 )
 
-func FisherYatesShuffleWithExclusion(arr []any, excludeIndices map[int]bool) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+func FisherYatesShuffleWithExclusion(arr []any, excludeIndices map[int]bool, seed int64) {
+	r := rand.New(rand.NewSource(seed))
 	n := len(arr)
 
 	validIndices := make([]int, 0, n)
