@@ -10,7 +10,7 @@ type ShuffleOptions struct {
 	ExcludeIndices map[int]bool
 }
 
-func FisherYatesShuffle(arr []any, opts *ShuffleOptions) {
+func FisherYatesShuffle[T any](arr []T, opts *ShuffleOptions) {
 	seed := time.Now().UnixNano()
 	var excludeIndices map[int]bool
 
