@@ -1,6 +1,9 @@
 package stats
 
-import "math"
+import (
+	"math"
+	"slices"
+)
 
 // RandVar is a struct that represents a simple set of data of a random variable
 type RandVar struct {
@@ -16,10 +19,14 @@ func NewRandVar(data []float64) *RandVar {
 	return rv
 }
 
-// Returns the mean of the data
+// Returns the mean of the data. It will return 0 when data length is 0
 func (rv *RandVar) Mean() float64 {
 	var sum float64
 	n := len(rv.data)
+	if n == 0 {
+		return 0.0
+	}
+
 	for _, v := range rv.data {
 		sum += v
 	}
@@ -31,25 +38,33 @@ func (rv *RandVar) Mean() float64 {
 func (rv *RandVar) Median() float64 {
 	n := len(rv.data)
 
+	data := rv.data
+	slices.Sort(data)
+
 	if n == 0 {
 		return 0
 	}
 
 	if n%2 == 1 {
-		return rv.data[n/2]
+		return data[n/2]
 	}
 
-	return (rv.data[n/2-1] + rv.data[n/2]) / 2
+	return (data[n/2-1] + data[n/2]) / 2
 }
 
-// Returns the variance of the data
+// Returns the variance of the data. It will return 0 when data length is 0
 func (rv *RandVar) Variance() float64 {
 	mean := rv.Mean()
 	sum := 0.0
+	n := len(rv.data)
+	if n == 0 {
+		return 0.0
+	}
+
 	for _, v := range rv.data {
 		sum += math.Pow((v - mean), 2)
 	}
-	return sum / float64(len(rv.data)-1)
+	return sum / float64(n)
 }
 
 // Returns the standard deviation of the data
@@ -88,7 +103,7 @@ func (rv *RandVar) Kurtosis() (float64, error) {
 		sum += math.Pow((rv.data[v] - mean), 4)
 	}
 
-	return (sum / (float64(n) * math.Pow(stdDev, 4))) - 3, nil
+	return (sum / (float64(n) * math.Pow(stdDev, 4))), nil
 }
 
 // Returns the maximum value of the data
