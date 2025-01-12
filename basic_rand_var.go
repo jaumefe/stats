@@ -5,7 +5,7 @@ import (
 	"slices"
 )
 
-// RandVar is a struct that represents a simple set of data of a random variable
+// RandVar is a struct that represents a simple set of data of a random variable. All statistical parameters are computed as it was a whole population
 type RandVar struct {
 	data []float64
 }
@@ -108,6 +108,10 @@ func (rv *RandVar) Kurtosis() (float64, error) {
 
 // Returns the maximum value of the data
 func (rv *RandVar) Max() float64 {
+	if len(rv.data) == 0 {
+		return 0
+	}
+
 	max := rv.data[0]
 	for _, v := range rv.data {
 		if v > max {
@@ -119,6 +123,10 @@ func (rv *RandVar) Max() float64 {
 
 // Returns the minimum value of the data
 func (rv *RandVar) Min() float64 {
+	if len(rv.data) == 0 {
+		return 0
+	}
+
 	min := rv.data[0]
 	for _, v := range rv.data {
 		if v < min {

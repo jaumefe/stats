@@ -12,6 +12,7 @@ Optimized for large datasets, so it is not necessary to recalculate
 certain statistical parameters if needed for a certain parameter. For example:
 When calculating the variance, it is necessary to obtain first the Mean,
 so by using this variable, the mean is not recomputed.
+All statistical parameters are computed as it was a whole population
 */
 type AdvRandVar struct {
 	*RandVar
@@ -28,7 +29,7 @@ type AdvRandVar struct {
 	skewness     float64
 	kurtosis     float64
 
-	*meta
+	*Meta
 }
 
 /*
@@ -39,7 +40,7 @@ Metadata in case the random variable is desired to be identified:
   - src: Data source, such as a sensor, a database...
   - category: Label to classify a variable (it may be useful for multivariable analysis)
 */
-type meta struct {
+type Meta struct {
 	name  string
 	units string
 
@@ -58,20 +59,24 @@ func NewAdvRandVar(data []float64) *AdvRandVar {
 
 // Defines Meta information about a AdvRandVar
 func (arv *AdvRandVar) DefineMeta(name, units, timestamp, source, cat string) {
+	if arv.Meta == nil {
+		arv.Meta = &Meta{}
+	}
+
 	if name != "" {
-		arv.meta.name = name
+		arv.name = name
 	}
 	if units != "" {
-		arv.meta.units = units
+		arv.units = units
 	}
 	if timestamp != "" {
-		arv.meta.timestamp = timestamp
+		arv.timestamp = timestamp
 	}
 	if source != "" {
-		arv.meta.src = source
+		arv.src = source
 	}
 	if cat != "" {
-		arv.meta.category = cat
+		arv.category = cat
 	}
 }
 
@@ -116,13 +121,13 @@ func (arv *AdvRandVar) updateStdDev() {
 
 // Computes the value of the skewness of a AdvRandVar
 func (arv *AdvRandVar) updateSkewness() {
-	if arv.stdDev == 0 {
+	sum := 0.0
+	n := len(arv.RandVar.data)
+	if arv.stdDev == 0 || n == 0 {
 		arv.skewness = 0
 		return
 	}
 
-	n := len(arv.RandVar.data)
-	sum := 0.0
 	for v := 0; v < n; v++ {
 		sum += math.Pow((arv.RandVar.data[v] - arv.mean), 3)
 	}
@@ -143,7 +148,7 @@ func (arv *AdvRandVar) updateKurtosis() {
 		sum += math.Pow((arv.RandVar.data[v] - arv.mean), 4)
 	}
 
-	arv.kurtosis = (sum / (float64(n) * math.Pow(arv.stdDev, 4))) - 3
+	arv.kurtosis = (sum / (float64(n) * math.Pow(arv.stdDev, 4)))
 }
 
 // Computes the maximum value of the dataset of an AdvRandVar
@@ -163,14 +168,15 @@ func (arv *AdvRandVar) updateRange() {
 
 // Computes a weighted mean of the dataset of an AdvRandVar
 func (arv *AdvRandVar) updateWeightedMean() error {
-	if arv.weight != nil {
+	if arv.weight == nil {
 		return fmt.Errorf("weight not defined")
 	}
-
-	for i, v := range arv.RandVar.data {
+	w := 0.0
+	for i, v := range arv.data {
 		arv.weightedMean += v * arv.weight[i]
+		w += arv.weight[i]
 	}
-	arv.weightedMean = arv.weightedMean / float64(len(arv.RandVar.data))
+	arv.weightedMean = arv.weightedMean / w
 	return nil
 }
 
@@ -210,22 +216,32 @@ func (arv *AdvRandVar) Update(opts *OptsExclusionUpdate) {
 
 	if !opts.Skewness {
 		arv.updateSkewness()
+	} else {
+		arv.skewness = 0
 	}
 
 	if !opts.Kurtosis {
 		arv.updateKurtosis()
+	} else {
+		arv.kurtosis = 0
 	}
 
 	if !opts.Max {
 		arv.updateMax()
+	} else {
+		arv.max = 0
 	}
 
 	if !opts.Min {
 		arv.updateMin()
+	} else {
+		arv.min = 0
 	}
 
 	if !opts.Range {
 		arv.updateRange()
+	} else {
+		arv.rng = 0
 	}
 
 	if !opts.WeightedMean {
@@ -233,6 +249,8 @@ func (arv *AdvRandVar) Update(opts *OptsExclusionUpdate) {
 		if err != nil {
 			log.Print(err)
 		}
+	} else {
+		arv.weightedMean = 0
 	}
 }
 

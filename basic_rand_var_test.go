@@ -204,6 +204,78 @@ func TestKurtosis(t *testing.T) {
 	}
 }
 
+func TestMax(t *testing.T) {
+	tests := []testrv{
+		{
+			name:     "Only one number",
+			data:     []float64{1.0},
+			expected: 1.0,
+		},
+		{
+			name:     "Empty data",
+			data:     []float64{},
+			expected: 0.0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rv := NewRandVar(tt.data)
+			if rv.Max() != tt.expected {
+				t.Errorf("Expected %f, got %f", tt.expected, rv.Max())
+			}
+		})
+	}
+}
+
+func TestMin(t *testing.T) {
+	tests := []testrv{
+		{
+			name:     "Only one number",
+			data:     []float64{1.0},
+			expected: 1.0,
+		},
+		{
+			name:     "Empty data",
+			data:     []float64{},
+			expected: 0.0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rv := NewRandVar(tt.data)
+			if rv.Min() != tt.expected {
+				t.Errorf("Expected %f, got %f", tt.expected, rv.Min())
+			}
+		})
+	}
+}
+
+func TestRange(t *testing.T) {
+	tests := []testrv{
+		{
+			name:     "Only one number",
+			data:     []float64{1.0},
+			expected: 0.0,
+		},
+		{
+			name:     "Empty data",
+			data:     []float64{},
+			expected: 0.0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rv := NewRandVar(tt.data)
+			if rv.Range() != tt.expected {
+				t.Errorf("Expected %f, got %f", tt.expected, rv.Range())
+			}
+		})
+	}
+}
+
 func TestCovariance(t *testing.T) {
 	dataX := []float64{50.2, 60.3, 45.23, 55.75, 70.91}
 	dataY := []float64{24.6, 41.9, 33.33, 27.9, 44.1}
