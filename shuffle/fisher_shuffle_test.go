@@ -8,7 +8,7 @@ import (
 func TestFisherYatesShuffleWithExclusion(t *testing.T) {
 	input := []any{0, "foo", 2, 3.2, 4, true, 6, 7, 8, "bar"}
 	expected := []any{6, "foo", 2, 8, 0, true, 4, 7, "bar", 3.2}
-	opts := &ShuffleOptions{Seed: int64(3), ExcludeIndices: map[int]bool{1: true, 2: true, 7: true}}
+	opts := &ShuffleOptions{Seed: int64(3), ExcludeIndices: []int{1, 2, 7}}
 
 	// Copying original input
 	shuffled := make([]any, len(input))
@@ -22,9 +22,9 @@ func TestFisherYatesShuffleWithExclusion(t *testing.T) {
 	}
 
 	// Checking that exclusions has not moved
-	for i := range opts.ExcludeIndices {
-		if shuffled[i] != input[i] {
-			t.Errorf("Excluded index %d was altered: expected %v, got %v", i, input[i], shuffled[i])
+	for _, ei := range opts.ExcludeIndices {
+		if shuffled[ei] != input[ei] {
+			t.Errorf("Excluded index %d was altered: expected %v, got %v", ei, input[ei], shuffled[ei])
 		}
 	}
 
