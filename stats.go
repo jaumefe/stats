@@ -13,7 +13,7 @@ func Mean(data []float64) (float64, error) {
 
 	sum := 0.0
 	for i := 0; i < n; i++ {
-		sum += data[n]
+		sum += data[i]
 	}
 
 	return sum / float64(n), nil
@@ -25,13 +25,12 @@ func Median(data []float64) (float64, error) {
 		return 0, ErrEmptyData
 	}
 
-	sorted := data
-	slices.Sort(sorted)
+	sorted := Sort(data)
 	if n%2 == 1 {
-		return data[n/2], nil
+		return sorted[n/2], nil
 	}
 
-	return (data[n/2-1] + data[n/2]) / 2, nil
+	return (sorted[n/2-1] + sorted[n/2]) / 2, nil
 }
 
 func Mode(data []float64) (float64, error) {
@@ -51,7 +50,7 @@ func Mode(data []float64) (float64, error) {
 	mode := 0.0
 	modeIdx := 0
 	for m, i := range modeValues {
-		if modeIdx > i {
+		if i > modeIdx {
 			mode = m
 			modeIdx = i
 		}
@@ -203,4 +202,223 @@ func Scale(data []float64, factor float64) ([]float64, error) {
 		scaled[i] = data[i] * factor
 	}
 	return scaled, nil
+}
+
+func Equals(a, b []float64, epsilon float64) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := 0; i < len(a); i++ {
+		if math.Abs(a[i]-b[i]) > epsilon {
+			return false
+		}
+	}
+
+	return true
+}
+
+func Intersection(a, b []float64, epsilon float64) []float64 {
+	if len(a) == 0 || len(b) == 0 {
+		return nil
+	}
+
+	intersection := make([]float64, 0)
+	for _, v := range a {
+		for _, w := range b {
+			if math.Abs(v-w) <= epsilon {
+				intersection = append(intersection, v)
+				break
+			}
+		}
+	}
+
+	return intersection
+}
+
+func Union(a, b []float64, epsilon float64) []float64 {
+	if len(a) == 0 {
+		return b
+	}
+	if len(b) == 0 {
+		return a
+	}
+
+	seen := make(map[float64]bool)
+	union := make([]float64, 0)
+
+	addIfNotSeen := func(value float64) {
+		for existing := range seen {
+			if math.Abs(existing-value) <= epsilon {
+				return
+			}
+		}
+		seen[value] = true
+		union = append(union, value)
+	}
+
+	for _, v := range a {
+		addIfNotSeen(v)
+	}
+	for _, v := range b {
+		addIfNotSeen(v)
+	}
+
+	return union
+}
+
+func IQR(data []float64) (float64, error) {
+	if len(data) == 0 {
+		return 0, ErrEmptyData
+	}
+
+	q3, err := Percentile(data, 75)
+	if err != nil {
+		return 0, err
+	}
+
+	q1, err := Percentile(data, 25)
+	if err != nil {
+		return 0, err
+	}
+
+	return q3 - q1, nil
+}
+
+func Percentile(data []float64, p float64) (float64, error) {
+	if len(data) == 0 {
+		return 0, ErrEmptyData
+	}
+
+	if p < 0 || p > 100 {
+		return 0, ErrInvalidPercentile
+	}
+
+	sorted := Sort(data)
+	n := len(sorted)
+	pos := p * float64(n) / 100
+
+	if pos == float64(int(pos)) {
+		return sorted[int(pos)-1], nil
+	}
+
+	lower := sorted[int(pos)-1]
+	upper := sorted[int(pos)]
+	weight := pos - float64(lower)
+
+	return lower*(1-weight) + upper*weight, nil
+}
+
+func Quantile(data []float64, qs float64, n uint) (float64, error) {
+	if len(data) == 0 {
+		return 0, ErrEmptyData
+	}
+
+	if qs < 0 || qs > float64(n) {
+		return 0, ErrInvalideQuantile
+	}
+
+	q := qs / float64(n)
+	sorted := Sort(data)
+	pos := q * float64(len(sorted))
+
+	lower := sorted[int(pos)-1]
+	upper := sorted[int(pos)]
+	weight := pos - float64(lower)
+
+	return lower*(1-weight) + upper*weight, nil
+}
+
+func Skewness(data []float64) (float64, error) {
+	stdDev, err := StandardDeviation(data)
+	if err != nil {
+		return 0, err
+	}
+
+	if stdDev == 0 {
+		return 0, ErrNullStdDeviation
+	}
+
+	n := len(data)
+	mean, err := Mean(data)
+	if err != nil {
+		return 0, err
+	}
+
+	sum := 0.0
+	for v := 0; v < n; v++ {
+		sum += math.Pow((data[v] - mean), 3)
+	}
+
+	return sum / (float64(n) * math.Pow(stdDev, 3)), nil
+}
+
+func Kurtosis(data []float64) (float64, error) {
+	stdDev, err := StandardDeviation(data)
+	if err != nil {
+		return 0, err
+	}
+
+	if stdDev == 0 {
+		return 0, ErrNullStdDeviation
+	}
+
+	n := len(data)
+	mean, err := Mean(data)
+	if err != nil {
+		return 0, err
+	}
+
+	sum := 0.0
+	for v := 0; v < n; v++ {
+		sum += math.Pow((data[v] - mean), 4)
+	}
+
+	return (sum / (float64(n) * math.Pow(stdDev, 4))), nil
+}
+
+func Frequency(data []float64, epsilon float64) (map[float64]int, error) {
+	if len(data) == 0 {
+		return nil, ErrEmptyData
+	}
+
+	freq := make(map[float64]int, 0)
+	addIfNotSeen := func(value float64) {
+		for existing := range freq {
+			if math.Abs(existing-value) <= epsilon {
+				return
+			}
+		}
+		freq[value]++
+	}
+
+	for _, v := range data {
+		addIfNotSeen(v)
+	}
+
+	return freq, nil
+}
+
+func Entropy(data []float64, logBase float64) (float64, error) {
+	n := len(data)
+	if n == 0 {
+		return 0, ErrEmptyData
+	}
+
+	if logBase == 1 && logBase <= 0 {
+		return 0, ErrInvalidLogBase
+	}
+
+	freq, err := Frequency(data, 1e-8)
+	if err != nil {
+		return 0, err
+	}
+
+	entropy := 0.0
+	for _, f := range freq {
+		p := float64(f) / float64(n)
+		entropy -= p * math.Log(p) / math.Logb(logBase)
+	}
+
+	return entropy, nil
 }
