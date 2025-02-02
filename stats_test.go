@@ -53,7 +53,7 @@ func TestMean(t *testing.T) {
 			}
 
 			if mean != tt.expected["mean"] {
-				t.Errorf("expected mean: %v, got:%v", mean, tt.expected["mean"])
+				t.Errorf("expected mean: %v, got:%v", tt.expected["mean"], mean)
 			}
 		})
 	}
@@ -96,7 +96,7 @@ func TestMedian(t *testing.T) {
 			}
 
 			if median != tt.expected["median"] {
-				t.Errorf("expected median: %v, got:%v", median, tt.expected["median"])
+				t.Errorf("expected median: %v, got:%v", tt.expected["median"], median)
 			}
 		})
 	}
@@ -121,7 +121,7 @@ func TestMode(t *testing.T) {
 			}
 
 			if mode != tt.expected["mode"] {
-				t.Errorf("expected mode: %v, got:%v", mode, tt.expected["mode"])
+				t.Errorf("expected mode: %v, got:%v", tt.expected["mode"], mode)
 			}
 		})
 	}
@@ -146,7 +146,7 @@ func TestStdDeviation(t *testing.T) {
 			}
 
 			if std != tt.expected["std"] {
-				t.Errorf("expected std: %v, got:%v", std, tt.expected["std"])
+				t.Errorf("expected std: %v, got:%v", tt.expected["std"], std)
 			}
 		})
 	}
@@ -177,7 +177,7 @@ func TestMax(t *testing.T) {
 			}
 
 			if max != tt.expected["max"] {
-				t.Errorf("expected max: %v, got:%v", max, tt.expected["max"])
+				t.Errorf("expected max: %v, got:%v", tt.expected["max"], max)
 			}
 		})
 	}
@@ -208,7 +208,7 @@ func TestMin(t *testing.T) {
 			}
 
 			if min != tt.expected["min"] {
-				t.Errorf("expected min: %v, got:%v", min, tt.expected["min"])
+				t.Errorf("expected min: %v, got:%v", tt.expected["min"], min)
 			}
 		})
 	}
@@ -236,7 +236,7 @@ func TestSum(t *testing.T) {
 			sum := Sum(tt.data)
 
 			if sum != tt.expected["sum"] {
-				t.Errorf("expected sum: %v, got:%v", sum, tt.expected["sum"])
+				t.Errorf("expected sum: %v, got:%v", tt.expected["sum"], sum)
 			}
 		})
 	}
@@ -294,23 +294,23 @@ func TestSort(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			sort := Sort(tt.data)
 			if len(sort) != len(tt.expected["sort"]) {
-				t.Errorf("expected sort: %v, got:%v", sort, tt.expected["sort"])
+				t.Errorf("expected sort: %v, got:%v", tt.expected["sort"], sort)
 			}
 
 			for i, v := range sort {
 				if v != tt.expected["sort"][i] {
-					t.Errorf("expected sort: %v, got:%v", sort, tt.expected["sort"])
+					t.Errorf("expected sort: %v, got:%v", tt.expected["sort"], sort)
 				}
 			}
 
 			reverseSort := ReverseSort(tt.data)
 			if len(reverseSort) != len(tt.expected["reverseSort"]) {
-				t.Errorf("expected reverseSort: %v, got:%v", reverseSort, tt.expected["reverseSort"])
+				t.Errorf("expected reverseSort: %v, got:%v", tt.expected["reverseSort"], reverseSort)
 			}
 
 			for i, v := range reverseSort {
 				if v != tt.expected["reverseSort"][i] {
-					t.Errorf("expected reverseSort: %v, got:%v", reverseSort, tt.expected["reverseSort"])
+					t.Errorf("expected reverseSort: %v, got:%v", tt.expected["reverseSort"], reverseSort)
 				}
 			}
 		})
@@ -358,7 +358,7 @@ func TestNormalization(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(normalized, tt.expected) {
-				t.Errorf("expected normalized: %v, got:%v", normalized, tt.expected)
+				t.Errorf("expected normalized: %v, got:%v", tt.expected, normalized)
 			}
 		})
 	}
@@ -416,7 +416,324 @@ func TestScale(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(scaled, tt.expected) {
-				t.Errorf("expected scaled: %v, got:%v", scaled, tt.expected)
+				t.Errorf("expected scaled: %v, got:%v", tt.expected, scaled)
+			}
+		})
+	}
+}
+
+type comparisonTest struct {
+	name     string
+	dataA    []float64
+	dataB    []float64
+	epsilon  float64
+	expected bool
+}
+
+var comparisonTests = []comparisonTest{
+	{
+		name:     "Empty data",
+		dataA:    []float64{},
+		dataB:    []float64{},
+		epsilon:  0.0,
+		expected: true,
+	},
+	{
+		name:     "Different lengths",
+		dataA:    []float64{2.0, 1.2},
+		dataB:    []float64{1.2},
+		epsilon:  0.0,
+		expected: false,
+	},
+	{
+		name:     "Simple test",
+		dataA:    []float64{2.0, 1.2, -3.3, 2.5},
+		dataB:    []float64{2.0, 1.2, -3.3, 2.5},
+		epsilon:  1e-8,
+		expected: true,
+	},
+}
+
+func TestEquals(t *testing.T) {
+	for _, tt := range comparisonTests {
+		t.Run(tt.name, func(t *testing.T) {
+			equal := Equals(tt.dataA, tt.dataB, tt.epsilon)
+			if equal != tt.expected {
+				t.Errorf("expected equal: %v, got:%v", tt.expected, equal)
+			}
+		})
+	}
+}
+
+type unionIntersectionTest struct {
+	name     string
+	dataA    []float64
+	dataB    []float64
+	epsilon  float64
+	expected []float64
+}
+
+var unionTests = []unionIntersectionTest{
+	{
+		name:     "Empty data",
+		dataA:    []float64{},
+		dataB:    []float64{},
+		expected: []float64{},
+	},
+	{
+		name:     "Empty data A",
+		dataA:    []float64{},
+		dataB:    []float64{1.0, 2.0},
+		expected: []float64{1.0, 2.0},
+	},
+	{
+		name:     "Empty data B",
+		dataA:    []float64{1.0, 2.0},
+		dataB:    []float64{},
+		expected: []float64{1.0, 2.0},
+	},
+	{
+		name:     "Simple test",
+		dataA:    []float64{1.0, 2.0, -1.0001, 2.22222222, 3.0, -2.4545454545},
+		dataB:    []float64{2.22222222, 3.0, 4.13, -3.3333333, -1.0001},
+		expected: []float64{1.0, 2.0, -1.0001, 2.22222222, 3.0, -2.4545454545, 4.13, -3.3333333},
+		epsilon:  1e-8,
+	},
+}
+
+func TestUnion(t *testing.T) {
+	for _, tt := range unionTests {
+		t.Run(tt.name, func(t *testing.T) {
+			union := Union(tt.dataA, tt.dataB, tt.epsilon)
+
+			if !reflect.DeepEqual(union, tt.expected) {
+				t.Errorf("expected union: %v, got:%v", tt.expected, union)
+			}
+		})
+	}
+}
+
+var intersectionTest = []unionIntersectionTest{
+	{
+		name:     "Empty data",
+		dataA:    nil,
+		dataB:    nil,
+		expected: nil,
+	},
+	{
+		name:     "Empty data A",
+		dataA:    nil,
+		dataB:    []float64{1.0, 2.0},
+		expected: nil,
+	},
+	{
+		name:     "Empty data B",
+		dataA:    []float64{1.0, 2.0},
+		dataB:    nil,
+		expected: nil,
+	},
+	{
+		name:     "Simple test",
+		dataA:    []float64{1.0, 2.0, -1.0001, 2.22222222, 3.0, -2.4545454545},
+		dataB:    []float64{2.22222222, 3.0, 4.13, -3.3333333, -1.0001},
+		expected: []float64{-1.0001, 2.22222222, 3.0},
+		epsilon:  1e-8,
+	},
+}
+
+func TestIntersection(t *testing.T) {
+	for _, tt := range intersectionTest {
+		t.Run(tt.name, func(t *testing.T) {
+			intersection := Intersection(tt.dataA, tt.dataB, tt.epsilon)
+
+			if !reflect.DeepEqual(intersection, tt.expected) {
+				t.Errorf("expected intersection: %v, got:%v", tt.expected, intersection)
+			}
+		})
+	}
+}
+
+type percentileTest struct {
+	name     string
+	data     []float64
+	p        float64
+	expected float64
+	err      error
+}
+
+var percentileTests = []percentileTest{
+	{
+		name:     "Empty data",
+		data:     nil,
+		p:        50,
+		expected: 0,
+		err:      ErrEmptyData,
+	},
+	{
+		name:     "Only single data",
+		data:     []float64{1.0},
+		p:        50,
+		expected: 1.0,
+		err:      nil,
+	},
+	{
+		name:     "Invalid percentile",
+		data:     []float64{1.0, 2.0, 3.0},
+		p:        101,
+		expected: 0,
+		err:      ErrInvalidPercentile,
+	},
+	{
+		name:     "Invalid percentile 2",
+		data:     []float64{1.0, 2.0, 3.0},
+		p:        -0.5,
+		expected: 0,
+		err:      ErrInvalidPercentile,
+	},
+	{
+		name:     "Simple data test",
+		data:     []float64{50, 55, 60, 62, 65, 70, 72, 75, 80, 85},
+		p:        25,
+		expected: 58.75,
+		err:      nil,
+	},
+}
+
+func TestPercentile(t *testing.T) {
+	for _, tt := range percentileTests {
+		t.Run(tt.name, func(t *testing.T) {
+			percentile, err := Percentile(tt.data, tt.p)
+			if err != tt.err {
+				t.Errorf("unexpected error received: %v", err)
+			}
+
+			if percentile != tt.expected {
+				t.Errorf("expected percentile: %v, got:%v", tt.expected, percentile)
+			}
+		})
+	}
+}
+
+type quantileTest struct {
+	name     string
+	data     []float64
+	qs       float64
+	n        uint
+	expected float64
+	err      error
+}
+
+var quantileTests = []quantileTest{
+	{
+		name:     "Empty data",
+		data:     nil,
+		expected: 0,
+		err:      ErrEmptyData,
+	},
+	{
+		name:     "Only single data",
+		data:     []float64{1.0},
+		qs:       3,
+		n:        10,
+		expected: 1.0,
+		err:      nil,
+	},
+	{
+		name:     "Invalid quantile index",
+		data:     []float64{1.0, 2.0, 3.0},
+		qs:       11,
+		n:        10,
+		expected: 0,
+		err:      ErrInvalideQuantile,
+	},
+	{
+		name:     "Invalid quantile index 2",
+		data:     []float64{1.0, 2.0, 3.0},
+		qs:       -1,
+		n:        10,
+		expected: 0,
+		err:      ErrInvalideQuantile,
+	},
+	{
+		name:     "Simple data test",
+		data:     []float64{12, 7, 18, 5, 13, 15, 8, 20, 22, 25},
+		qs:       1,
+		n:        4,
+		expected: 7.75,
+		err:      nil,
+	},
+}
+
+func TestQuantile(t *testing.T) {
+	for _, tt := range quantileTests {
+		t.Run(tt.name, func(t *testing.T) {
+			quantile, err := Quantile(tt.data, tt.qs, tt.n)
+			if err != tt.err {
+				t.Errorf("unexpected error received: %v", err)
+			}
+
+			if quantile != tt.expected {
+				t.Errorf("expected quantile: %v, got:%v", tt.expected, quantile)
+			}
+		})
+	}
+}
+
+type kurtosisSkewnessTest struct {
+	name     string
+	data     []float64
+	expected map[string]float64
+	err      error
+}
+
+var kurtosisSkewnessTests = []kurtosisSkewnessTest{
+	{
+		name: "Empty data",
+		data: nil,
+		expected: map[string]float64{
+			"kurtosis": 0.0, "skewness": 0.0,
+		},
+		err: ErrEmptyData,
+	},
+	{
+		name: "Only single data",
+		data: []float64{2.0},
+		expected: map[string]float64{
+			"kurtosis": 0.0, "skewness": 0.0,
+		},
+		err: ErrNullStdDeviation,
+	},
+}
+
+func TestSkewnessKurtosis(t *testing.T) {
+	tests := []kurtosisSkewnessTest{
+		{
+			name:     "Simple test",
+			data:     []float64{1.0, 2.0, 3.0, 4.0, 5.0},
+			expected: map[string]float64{"kurtosis": -1.3, "skewness": 0.0},
+			err:      nil,
+		},
+	}
+	tests = append(tests, kurtosisSkewnessTests...)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			skewness, err := Skewness(tt.data)
+			if err != tt.err {
+				t.Errorf("unexpected error received: %v", err)
+			}
+
+			if skewness-tt.expected["skewness"] > 1e-8 {
+				t.Errorf("expected skewness: %v, got:%v", tt.expected["skewness"], skewness)
+			}
+
+			kurtosis, err := Kurtosis(tt.data)
+			if err != tt.err {
+				t.Errorf("unexpected error received: %v", err)
+			}
+
+			if kurtosis-tt.expected["kurtosis"] > 1e-8 {
+				t.Errorf("expected kurtosis: %v, got:%v", tt.expected["kurtosis"], kurtosis)
 			}
 		})
 	}

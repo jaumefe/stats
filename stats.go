@@ -296,7 +296,15 @@ func Percentile(data []float64, p float64) (float64, error) {
 
 	sorted := Sort(data)
 	n := len(sorted)
-	pos := p * float64(n) / 100
+	pos := p * float64(n+1) / 100
+
+	if pos-1 <= 0 {
+		return sorted[0], nil
+	}
+
+	if pos >= float64(n) {
+		return sorted[n-1], nil
+	}
 
 	if pos == float64(int(pos)) {
 		return sorted[int(pos)-1], nil
@@ -304,11 +312,15 @@ func Percentile(data []float64, p float64) (float64, error) {
 
 	lower := sorted[int(pos)-1]
 	upper := sorted[int(pos)]
-	weight := pos - float64(lower)
+	weight := pos - float64(int(pos))
 
-	return lower*(1-weight) + upper*weight, nil
+	return lower + (upper-lower)*weight, nil
 }
 
+/*
+qs: desired quantile index
+n: total amount of quantiles
+*/
 func Quantile(data []float64, qs float64, n uint) (float64, error) {
 	if len(data) == 0 {
 		return 0, ErrEmptyData
@@ -320,13 +332,20 @@ func Quantile(data []float64, qs float64, n uint) (float64, error) {
 
 	q := qs / float64(n)
 	sorted := Sort(data)
-	pos := q * float64(len(sorted))
+	pos := q * float64(len(sorted)+1)
+	if pos-1 <= 0 {
+		return sorted[0], nil
+	}
+
+	if pos >= float64(n) {
+		return sorted[n-1], nil
+	}
 
 	lower := sorted[int(pos)-1]
 	upper := sorted[int(pos)]
-	weight := pos - float64(lower)
+	weight := pos - float64(int(pos))
 
-	return lower*(1-weight) + upper*weight, nil
+	return lower + (upper-lower)*weight, nil
 }
 
 func Skewness(data []float64) (float64, error) {
@@ -374,7 +393,7 @@ func Kurtosis(data []float64) (float64, error) {
 		sum += math.Pow((data[v] - mean), 4)
 	}
 
-	return (sum / (float64(n) * math.Pow(stdDev, 4))), nil
+	return (sum/(float64(n)*math.Pow(stdDev, 4)) - 3), nil
 }
 
 func Frequency(data []float64, epsilon float64) (map[float64]int, error) {
