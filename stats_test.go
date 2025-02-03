@@ -738,3 +738,114 @@ func TestSkewnessKurtosis(t *testing.T) {
 		})
 	}
 }
+
+type frequencyTest struct {
+	name     string
+	data     []float64
+	expected map[float64]int
+	epsilon  float64
+	err      error
+}
+
+var frequencyTests = []frequencyTest{
+	{
+		name:     "Empty data",
+		data:     nil,
+		expected: nil,
+		err:      ErrEmptyData,
+	},
+	{
+		name:     "Only single data",
+		data:     []float64{2.0},
+		expected: map[float64]int{2.0: 1},
+		err:      nil,
+	},
+	{
+		name:     "Simple test",
+		data:     []float64{2, 3, 2, 3, 2, 5, 5, 4, 5, 5, 5, 5, 5, 1, 0},
+		expected: map[float64]int{0: 1, 1: 1, 2: 3, 3: 2, 4: 1, 5: 7},
+		err:      nil,
+	},
+	{
+		name:     "Simple test",
+		data:     []float64{2.0, 1.99999, 2.00001, 2.000000001, 1.999999999, 2.1, 2.1000000001, 2.0999999999, 2.100001, 2.099999},
+		expected: map[float64]int{2: 3, 1.99999: 1, 2.00001: 1, 2.1: 3, 2.100001: 1, 2.099999: 1},
+		epsilon:  1e-8,
+		err:      nil,
+	},
+}
+
+func TestFrequency(t *testing.T) {
+	for _, tt := range frequencyTests {
+		t.Run(tt.name, func(t *testing.T) {
+			freq, err := Frequency(tt.data, tt.epsilon)
+			if err != tt.err {
+				t.Errorf("unexpected error received: %v", err)
+			}
+
+			if !reflect.DeepEqual(freq, tt.expected) {
+				t.Errorf("expected frequency: %v, got:%v", tt.expected, freq)
+			}
+		})
+	}
+}
+
+type entropyTest struct {
+	name     string
+	data     []float64
+	expected float64
+	logBase  float64
+	err      error
+}
+
+var entropyTests = []entropyTest{
+	{
+		name:     "Empty data",
+		data:     nil,
+		expected: 0,
+		err:      ErrEmptyData,
+	},
+	{
+		name:     "Non valid log base 1",
+		data:     []float64{2.0, 3.0, 4.0},
+		expected: 0,
+		logBase:  1,
+		err:      ErrInvalidLogBase,
+	},
+	{
+		name:     "Non valid log base 2",
+		data:     []float64{2.0, 3.0, 4.0},
+		expected: 0,
+		logBase:  0,
+		err:      ErrInvalidLogBase,
+	},
+	{
+		name:     "Non valid log base 3",
+		data:     []float64{2.0, 3.0, 4.0},
+		expected: 0,
+		logBase:  -1,
+		err:      ErrInvalidLogBase,
+	},
+	{
+		name:     "Simple test",
+		data:     []float64{1, 2, 2, 3, 3, 3, 4, 4, 4, 4},
+		expected: 1.8464393446710154,
+		logBase:  2,
+		err:      nil,
+	},
+}
+
+func TestEntropy(t *testing.T) {
+	for _, tt := range entropyTests {
+		t.Run(tt.name, func(t *testing.T) {
+			entropy, err := Entropy(tt.data, tt.logBase)
+			if err != tt.err {
+				t.Errorf("unexpected error received: %v", err)
+			}
+
+			if math.Abs(entropy-tt.expected) > 1e-8 {
+				t.Errorf("expected entropy: %v, got:%v", tt.expected, entropy)
+			}
+		})
+	}
+}

@@ -405,6 +405,7 @@ func Frequency(data []float64, epsilon float64) (map[float64]int, error) {
 	addIfNotSeen := func(value float64) {
 		for existing := range freq {
 			if math.Abs(existing-value) <= epsilon {
+				freq[existing]++
 				return
 			}
 		}
@@ -424,7 +425,7 @@ func Entropy(data []float64, logBase float64) (float64, error) {
 		return 0, ErrEmptyData
 	}
 
-	if logBase == 1 && logBase <= 0 {
+	if logBase == 1 || logBase <= 0 {
 		return 0, ErrInvalidLogBase
 	}
 
@@ -436,7 +437,7 @@ func Entropy(data []float64, logBase float64) (float64, error) {
 	entropy := 0.0
 	for _, f := range freq {
 		p := float64(f) / float64(n)
-		entropy -= p * math.Log(p) / math.Logb(logBase)
+		entropy -= p * math.Log(p) / math.Log(logBase)
 	}
 
 	return entropy, nil
