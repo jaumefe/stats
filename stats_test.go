@@ -816,13 +816,6 @@ var entropyTests = []entropyTest{
 		name:     "Non valid log base 2",
 		data:     []float64{2.0, 3.0, 4.0},
 		expected: 0,
-		logBase:  0,
-		err:      ErrInvalidLogBase,
-	},
-	{
-		name:     "Non valid log base 3",
-		data:     []float64{2.0, 3.0, 4.0},
-		expected: 0,
 		logBase:  -1,
 		err:      ErrInvalidLogBase,
 	},

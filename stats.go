@@ -5,6 +5,10 @@ import (
 	"slices"
 )
 
+/*
+Mean computes the mean value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func Mean(data []float64) (float64, error) {
 	n := len(data)
 	if len(data) == 0 {
@@ -19,6 +23,11 @@ func Mean(data []float64) (float64, error) {
 	return sum / float64(n), nil
 }
 
+/*
+Median provides the median value of a []float64 data input.
+Data input does not need to be sorted.
+It returns an error if the data is empty
+*/
 func Median(data []float64) (float64, error) {
 	n := len(data)
 	if n == 0 {
@@ -33,6 +42,10 @@ func Median(data []float64) (float64, error) {
 	return (sorted[n/2-1] + sorted[n/2]) / 2, nil
 }
 
+/*
+Mode provides the mode value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func Mode(data []float64) (float64, error) {
 	n := len(data)
 	if n == 0 {
@@ -58,6 +71,10 @@ func Mode(data []float64) (float64, error) {
 	return mode, nil
 }
 
+/*
+Variance computes the variance value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func Variance(data []float64) (float64, error) {
 	mean, err := Mean(data)
 	if err != nil {
@@ -73,6 +90,10 @@ func Variance(data []float64) (float64, error) {
 	return sum / float64(n), nil
 }
 
+/*
+StandardDeviation computes the standard deviation value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func StandardDeviation(data []float64) (float64, error) {
 	variance, err := Variance(data)
 	if err != nil {
@@ -83,6 +104,10 @@ func StandardDeviation(data []float64) (float64, error) {
 	return std, nil
 }
 
+/*
+Max returns the maximum value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func Max(data []float64) (float64, error) {
 	n := len(data)
 	if n == 0 {
@@ -99,6 +124,10 @@ func Max(data []float64) (float64, error) {
 	return max, nil
 }
 
+/*
+Min returns the minimum value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func Min(data []float64) (float64, error) {
 	n := len(data)
 	if n == 0 {
@@ -115,6 +144,10 @@ func Min(data []float64) (float64, error) {
 	return min, nil
 }
 
+/*
+Range computes the difference between the maximum and the minimum value of a []float64 data input.
+It returns an error if the data is empty
+*/
 func Range(data []float64) (float64, error) {
 	max, err := Max(data)
 	if err != nil {
@@ -129,6 +162,9 @@ func Range(data []float64) (float64, error) {
 	return max - min, nil
 }
 
+/*
+Sum computes the sum of all the elements of a []float64 data input.
+*/
 func Sum(data []float64) float64 {
 	sum := 0.0
 	for _, d := range data {
@@ -138,6 +174,10 @@ func Sum(data []float64) float64 {
 	return sum
 }
 
+/*
+Sort returns a sorted copy of the input []float64 data.
+It returns an empty slice if the input data is empty
+*/
 func Sort(data []float64) []float64 {
 	n := len(data)
 	if n == 0 {
@@ -149,6 +189,10 @@ func Sort(data []float64) []float64 {
 	return sortData
 }
 
+/*
+ReverseSort returns a sorted copy from maximum to minimum value of the input []float64 data.
+It returns an empty slice if the input data is empty
+*/
 func ReverseSort(data []float64) []float64 {
 	n := len(data)
 	if n == 0 {
@@ -164,6 +208,10 @@ func ReverseSort(data []float64) []float64 {
 	return reversed
 }
 
+/*
+Normalize computes the normalized values of a []float64 data input.
+It returns an error whether the standard deviation is null and / or the data is empty
+*/
 func Normalize(data []float64) ([]float64, error) {
 	mean, err := Mean(data)
 	if err != nil {
@@ -187,6 +235,11 @@ func Normalize(data []float64) ([]float64, error) {
 	return normalized, nil
 }
 
+/*
+Scale computes the scaled values of a []float64 data input given a factor.
+Factor must be different from 0.
+It returns an error if the data is empty or the factor is null
+*/
 func Scale(data []float64, factor float64) ([]float64, error) {
 	n := len(data)
 	if n == 0 {
@@ -204,6 +257,10 @@ func Scale(data []float64, factor float64) ([]float64, error) {
 	return scaled, nil
 }
 
+/*
+Equals returns a boolean value whether two []float64 data inputs are equal within a given epsilon.
+Epsilon value can be set to 0 for exact comparison.
+*/
 func Equals(a, b []float64, epsilon float64) bool {
 	if len(a) != len(b) {
 		return false
@@ -218,6 +275,10 @@ func Equals(a, b []float64, epsilon float64) bool {
 	return true
 }
 
+/*
+Intersection provides a []float64 with the common elements between two data inputs within a given epsilon.
+Epsilon value can be set to 0 for exact comparison.
+*/
 func Intersection(a, b []float64, epsilon float64) []float64 {
 	if len(a) == 0 || len(b) == 0 {
 		return nil
@@ -236,6 +297,11 @@ func Intersection(a, b []float64, epsilon float64) []float64 {
 	return intersection
 }
 
+/*
+Union provides a []float64 with all the elements between two data inputs within a given epsilon.
+Repeated elements are only included once.
+Epsilon value can be set to 0 for exact comparison.
+*/
 func Union(a, b []float64, epsilon float64) []float64 {
 	if len(a) == 0 {
 		return b
@@ -267,6 +333,10 @@ func Union(a, b []float64, epsilon float64) []float64 {
 	return union
 }
 
+/*
+IQR computes the interquartile range of a []float64 data input.
+It returns an error if the data is empty
+*/
 func IQR(data []float64) (float64, error) {
 	if len(data) == 0 {
 		return 0, ErrEmptyData
@@ -285,6 +355,10 @@ func IQR(data []float64) (float64, error) {
 	return q3 - q1, nil
 }
 
+/*
+Percentile computes the percentile value of a []float64 data input given a percentage(%) value.
+It returns an error if the data is empty or the percentage is out of range (0 - 100%)
+*/
 func Percentile(data []float64, p float64) (float64, error) {
 	if len(data) == 0 {
 		return 0, ErrEmptyData
@@ -318,8 +392,10 @@ func Percentile(data []float64, p float64) (float64, error) {
 }
 
 /*
-qs: desired quantile index
-n: total amount of quantiles
+Quantile computes the quantile value of a []float64 data input given a quantile index.
+- qs: desired quantile index
+- n: total amount of quantiles
+It returns an error if the data is emptty or the quantile index is out of range (0 - n)
 */
 func Quantile(data []float64, qs float64, n uint) (float64, error) {
 	if len(data) == 0 {
@@ -348,6 +424,10 @@ func Quantile(data []float64, qs float64, n uint) (float64, error) {
 	return lower + (upper-lower)*weight, nil
 }
 
+/*
+Skewness computes the skewness value of a []float64 data input.
+It returns an error if the data is empty or the standard deviation is null
+*/
 func Skewness(data []float64) (float64, error) {
 	stdDev, err := StandardDeviation(data)
 	if err != nil {
@@ -372,6 +452,10 @@ func Skewness(data []float64) (float64, error) {
 	return sum / (float64(n) * math.Pow(stdDev, 3)), nil
 }
 
+/*
+Kurtosis computes the kurtosis value of a []float64 data input.
+It returns an error if the data is empty or the standard deviation is null
+*/
 func Kurtosis(data []float64) (float64, error) {
 	stdDev, err := StandardDeviation(data)
 	if err != nil {
@@ -396,6 +480,10 @@ func Kurtosis(data []float64) (float64, error) {
 	return (sum/(float64(n)*math.Pow(stdDev, 4)) - 3), nil
 }
 
+/*
+Frequency computes the frequency of each value of a []float64 data input within a given epsilon.
+It returns an error if the data is empty
+*/
 func Frequency(data []float64, epsilon float64) (map[float64]int, error) {
 	if len(data) == 0 {
 		return nil, ErrEmptyData
@@ -419,13 +507,20 @@ func Frequency(data []float64, epsilon float64) (map[float64]int, error) {
 	return freq, nil
 }
 
+/*
+Entropy computes the entropy value of a []float64 data input.
+It can be set to a specific log base:
+  - logBase = 0: natural entropy
+
+It returns an error if the data is empty or the log base is invalid
+*/
 func Entropy(data []float64, logBase float64) (float64, error) {
 	n := len(data)
 	if n == 0 {
 		return 0, ErrEmptyData
 	}
 
-	if logBase == 1 || logBase <= 0 {
+	if logBase == 1 || logBase < 0 {
 		return 0, ErrInvalidLogBase
 	}
 
