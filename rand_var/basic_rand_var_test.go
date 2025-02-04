@@ -1,4 +1,4 @@
-package stats
+package randvar
 
 import (
 	"reflect"

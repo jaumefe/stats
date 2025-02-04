@@ -1,4 +1,4 @@
-package stats
+package randvar
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ type Meta struct {
 	category  string
 }
 
-// Returns a new AdvRandVar. Meta data can be given to define AdvRandVar
+// Returns a new AdvRandVar
 func NewAdvRandVar(data []float64) *AdvRandVar {
 	arv := &AdvRandVar{
 		RandVar: NewRandVar(data),

@@ -5,14 +5,22 @@ import (
 	"time"
 )
 
+/*
+ShuffleOptions to set special features:
+- Seed: seed for random number generator
+- ExcludeIndices: Slice of indices which are not desired to be shuffled
+*/
 type ShuffleOptions struct {
 	Seed           int64
-	ExcludeIndices map[int]bool
+	ExcludeIndices []int
 }
 
+/*
+Fisher Yates Shuffling method
+*/
 func FisherYatesShuffle[T any](arr []T, opts *ShuffleOptions) {
 	seed := time.Now().UnixNano()
-	var excludeIndices map[int]bool
+	excludeIndices := make(map[int]bool)
 
 	if opts != nil {
 		if opts.Seed != 0 {
@@ -20,7 +28,9 @@ func FisherYatesShuffle[T any](arr []T, opts *ShuffleOptions) {
 		}
 
 		if opts.ExcludeIndices != nil {
-			excludeIndices = opts.ExcludeIndices
+			for _, ei := range opts.ExcludeIndices {
+				excludeIndices[ei] = true
+			}
 		}
 	}
 
@@ -29,13 +39,13 @@ func FisherYatesShuffle[T any](arr []T, opts *ShuffleOptions) {
 
 	validIndices := make([]int, 0, n)
 	for i := 0; i < n; i++ {
-		if excludeIndices == nil || !excludeIndices[i] {
+		if len(excludeIndices) == 0 || !excludeIndices[i] {
 			validIndices = append(validIndices, i)
 		}
 	}
 
 	for i := n - 1; i > 0; i-- {
-		if excludeIndices == nil || !excludeIndices[i] {
+		if len(excludeIndices) == 0 || !excludeIndices[i] {
 			j := validIndices[r.Intn(len(validIndices))]
 			arr[i], arr[j] = arr[j], arr[i]
 		}

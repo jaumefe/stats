@@ -1,8 +1,10 @@
-package stats
+package randvar
 
 import (
 	"math"
 	"slices"
+
+	"github.com/jaumefe/stats"
 )
 
 // RandVar is a struct that represents a simple set of data of a random variable. All statistical parameters are computed as it was a whole population
@@ -76,7 +78,7 @@ func (rv *RandVar) StdDev() float64 {
 func (rv *RandVar) Skewness() (float64, error) {
 	stdDev := rv.StdDev()
 	if stdDev == 0 {
-		return 0, ErrNullStdDeviation
+		return 0, stats.ErrNullStdDeviation
 	}
 
 	n := len(rv.data)
@@ -93,7 +95,7 @@ func (rv *RandVar) Skewness() (float64, error) {
 func (rv *RandVar) Kurtosis() (float64, error) {
 	stdDev := rv.StdDev()
 	if stdDev == 0 {
-		return 0, ErrNullStdDeviation
+		return 0, stats.ErrNullStdDeviation
 	}
 
 	n := len(rv.data)
@@ -144,7 +146,7 @@ func (rv *RandVar) Range() float64 {
 // Returns the covariance between two random variables
 func (rv *RandVar) Covariance(rv1 *RandVar) (float64, error) {
 	if len(rv.data) != len(rv1.data) {
-		return 0, ErrDifferentLength
+		return 0, stats.ErrDifferentLength
 	}
 
 	n := len(rv.data)
