@@ -15,10 +15,7 @@ func Mean(data []float64) (float64, error) {
 		return 0, ErrEmptyData
 	}
 
-	sum := 0.0
-	for i := 0; i < n; i++ {
-		sum += data[i]
-	}
+	sum := Sum(data)
 
 	return sum / float64(n), nil
 }
