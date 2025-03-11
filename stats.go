@@ -21,6 +21,28 @@ func Mean(data []float64) (float64, error) {
 }
 
 /*
+Truncated Mean computes the mean value of a []float64 data input, in which a settable percentage of extreme values is removed.
+It returns an error if the data is empty or the percentage is out of range (0 ~ 100%)
+*/
+func TruncatedMean(data []float64, p float64) (float64, error) {
+	n := len(data)
+	if n == 0 {
+		return 0, ErrEmptyData
+	}
+
+	if p < 0 || p > 100 {
+		return 0, ErrInvalidPercentage
+	}
+	pu := p / 100
+	newLen := int(float64(n) * (1 - pu))
+
+	sorted := Sort(data)
+	newData := sorted[int(float64(n)*pu):newLen]
+	return Mean(newData)
+
+}
+
+/*
 Median provides the median value of a []float64 data input.
 Data input does not need to be sorted.
 It returns an error if the data is empty

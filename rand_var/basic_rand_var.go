@@ -87,6 +87,10 @@ func (rv *RandVar) ReverseSort() []float64 {
 	return stats.Sort(rv.data)
 }
 
+func (rv *RandVar) Frequency(epsilon float64) (map[float64]int, error) {
+	return stats.Frequency(rv.data, epsilon)
+}
+
 // Returns the covariance between two random variables
 func (rv *RandVar) Covariance(rv1 *RandVar) (float64, error) {
 	if len(rv.data) != len(rv1.data) {
@@ -186,4 +190,106 @@ func (rv *RandVar) rankVariable() ([]float64, error) {
 	}
 
 	return rank, nil
+}
+
+func (rv *RandVar) Normalize() (*RandVar, error) {
+	norm, err := stats.Normalize(rv.data)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewRandVar(norm), nil
+}
+
+func (rv *RandVar) Scale(factor float64) (*RandVar, error) {
+	scaled, err := stats.Scale(rv.data, factor)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewRandVar(scaled), nil
+}
+
+func (rv *RandVar) Entropy(logBase float64) (float64, error) {
+	return stats.Entropy(rv.data, logBase)
+}
+
+func (rv *RandVar) Add(y *RandVar) (*RandVar, error) {
+	if len(rv.data) != len(y.data) {
+		return nil, stats.ErrDifferentLength
+	}
+
+	n := len(rv.data)
+	added := make([]float64, n)
+	for i := 0; i < n; i++ {
+		added[i] = rv.data[i] + y.data[i]
+	}
+
+	return NewRandVar(added), nil
+}
+
+func (rv *RandVar) Subtract(y *RandVar) (*RandVar, error) {
+	if len(rv.data) != len(y.data) {
+		return nil, stats.ErrDifferentLength
+	}
+
+	n := len(rv.data)
+	subs := make([]float64, n)
+	for i := 0; i < n; i++ {
+		subs[i] = rv.data[i] - y.data[i]
+	}
+
+	return NewRandVar(subs), nil
+}
+
+func (rv *RandVar) Product(y *RandVar) (*RandVar, error) {
+	if len(rv.data) != len(y.data) {
+		return nil, stats.ErrDifferentLength
+	}
+
+	n := len(rv.data)
+	prod := make([]float64, n)
+	for i := 0; i < n; i++ {
+		prod[i] = rv.data[i] * y.data[i]
+	}
+
+	return NewRandVar(prod), nil
+}
+
+func (rv *RandVar) Shift(offset float64) (*RandVar, error) {
+	n := len(rv.data)
+	if n == 0 {
+		return nil, stats.ErrEmptyData
+	}
+
+	shifted := make([]float64, n)
+	for i := 0; i < n; i++ {
+		shifted[i] = rv.data[i] + offset
+	}
+
+	return NewRandVar(shifted), nil
+}
+
+func (rv *RandVar) Quantile(qs float64, n uint) (float64, error) {
+	return stats.Quantile(rv.data, qs, n)
+}
+
+func (rv *RandVar) Percentile(p float64) (float64, error) {
+	return stats.Percentile(rv.data, p)
+}
+
+func (rv *RandVar) IQR() (float64, error) {
+	return stats.IQR(rv.data)
+}
+
+func (rv *RandVar) Equals(y *RandVar, epsilon float64) bool {
+	return stats.Equals(rv.data, y.data, epsilon)
+}
+
+func (rv *RandVar) Intersection(y *RandVar, epsilon float64) *RandVar {
+	return NewRandVar(stats.Intersection(rv.data, y.data, epsilon))
+}
+
+func (rv *RandVar) Union(y *RandVar, epsilon float64) *RandVar {
+	return NewRandVar(stats.Union(rv.data, y.data, epsilon))
 }
